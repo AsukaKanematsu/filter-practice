@@ -1,4 +1,19 @@
 <?php
+
+if (isset($_GET['order'])) {
+    $direction = $_GET['order'];
+} else {
+    $direction = 'desc';
+}
+
+if (isset($_GET['search_query'])) {
+    $title = '%' . $_GET['search_query'] . '%';
+    $contents = '%' . $_GET['search_query'] . '%';
+} else {
+    $title = '%%';
+    $contents = '%%';
+}
+
 $dbUserName = 'root';
 $dbPassword = 'password';
 $pdo = new PDO(
@@ -29,20 +44,26 @@ $pages = $statement->fetchAll(PDO::FETCH_ASSOC);
 <body>
   <div>
     <div>
-      <form action="index.php" method="get">
-        <div>
-          <label>
-            <input type="radio" name="order" value="desc" class="">
-            <span>新着順</span>
-          </label>
-          <label>
-            <input type="radio" name="order" value="asc" class="">
-            <span>古い順</span>
-          </label>
-        </div>
-        <button type="submit">送信</button>
-      </form>
-    </div>
+      <div class="background right">
+        <form action="privatepage.php" method="POST">
+          <input type="submit" name="昇順" value="新しい順">
+          <input type="submit" name="降順" value="古い順">
+        </form>
+
+        <?php if (isset($_POST['昇順']) && $_POST['昇順'] === '新しい順') { ?>
+        <?php array_multisort(
+            array_column($pages, 'created_at'),
+            SORT_ASC,
+            $pages
+        );} ?>
+        <?php if (isset($_POST['降順']) && $_POST['降順'] === '古い順') { ?>
+        <?php array_multisort(
+            array_column($pages, 'created_at'),
+            SORT_DESC,
+            $pages
+        );} ?>
+      
+      </div>
 
     <div>
       <table border="1">
